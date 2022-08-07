@@ -2,38 +2,46 @@ import { Card, CardBody, CardImg, CardTitle, Col, Row } from "reactstrap";
 import Link from "next/link";
 import { gql } from "apollo-boost";
 import { useQuery } from "@apollo/react-hooks";
+import { useRouter } from "next/router";
 
-const query = gql`
-  {
-    restaurants {
+const GET_RESTAURANT_DISHES = gql`
+  query ($id: ID!) {
+    restaurant(id: $id) {
       id
       name
-      description
-      image {
-        url
+      dishes {
+        id
+        name
+        description
+        price
+        image {
+          url
+        }
       }
     }
   }
 `;
 
-const RestaurantList = (props) => {
-  const { loading, error, data } = useQuery(query);
+const Restaurants = (props) => {
+  const router = useRouter();
+  const { loading, error, data } = useQuery(GET_RESTAURANT_DISHES, {
+    variables: { id: router.query.id },
+  });
 
   if (error) return "レストランの読み込みに失敗しました";
 
   if (loading) return <h1>読み込み中・・・</h1>;
 
   if (data) {
-    const searchQuery = data.restaurants.filter((restaurant) =>
-      restaurant.name.toLowerCase().includes(props.search)
-    );
+    console.log(data);
+    const { restaurant } = data;
     return (
       <Row>
-        {searchQuery.map((res) => (
+        {restaurant.dishes.map((res) => (
           <Col xs="6" sm="4">
             <Card style={{ margin: "0 0.5rem 20px 0.5rem" }}>
               <CardImg
-                src={`${process.env.NEXT_PUBLIC_API_URL}${res.image[0].url}`}
+                src={`${process.env.NEXT_PUBLIC_API_URL}${res.image.url}`}
                 top={true}
                 style={{ height: 250 }}
               />
@@ -43,7 +51,7 @@ const RestaurantList = (props) => {
               </CardBody>
               <div className="card-footer">
                 <Link
-                  href={`/restaurants?id=${res.id}`}
+                  href={`/restaurants?=${res.id}`}
                   as={`/restaurants/${res.id}`}
                 >
                   <a className="btn btn-primary">もっと見る</a>
@@ -77,4 +85,4 @@ const RestaurantList = (props) => {
   }
 };
 
-export default RestaurantList;
+export default Restaurants;
