@@ -1,8 +1,8 @@
 import React from "react";
-import App, { Container } from "next/app";
 import Head from "next/head";
 import Link from "next/link";
-import { Nav, NavItem } from "reactstrap";
+
+import { Container, Nav, NavItem } from "reactstrap";
 
 const layout = (props) => {
   return (

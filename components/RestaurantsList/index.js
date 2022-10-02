@@ -30,7 +30,7 @@ const RestaurantList = (props) => {
     return (
       <Row>
         {searchQuery.map((res) => (
-          <Col xs="6" sm="4">
+          <Col xs="6" sm="4" key={res.id}>
             <Card style={{ margin: "0 0.5rem 20px 0.5rem" }}>
               <CardImg
                 src={`${process.env.NEXT_PUBLIC_API_URL}${res.image[0].url}`}
