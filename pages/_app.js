@@ -5,10 +5,12 @@ import Cookie from "js-cookie";
 import Layout from "../components/layout";
 import withData from "../lib/apollo";
 import AppContext from "../context/AppContext";
+import Cookies from "js-cookie";
 
 class MyApp extends App {
   state = {
     user: null,
+    cart: { items: [], total: 0 },
   };
 
   setUser = (user) => {
@@ -36,11 +38,50 @@ class MyApp extends App {
     }
   }
 
+  // カートへ商品の追加
+  addItem = (item) => {
+    let { items } = this.state.cart;
+    const newItem = items.find((i) => i.id === item.id);
+    if (!newItem) {
+      item.quantity = 1;
+      // カートに追加する
+      this.setState(
+        {
+          cart: {
+            items: [...items, item],
+            total: this.state.cart.total + item.price,
+          },
+        },
+        () => Cookies.set("cart", this.state.cart.items)
+      );
+      // すでに同じ商品がカートに入っているとき
+    } else {
+      this.setState(
+        {
+          cart: {
+            items: this.state.cart.items.map((item) =>
+              item.id === newItem.id
+                ? Object.assign({}, item, { quantity: item.quantity + 1 })
+                : item
+            ),
+            total: this.state.cart.total + item.price,
+          },
+        },
+        () => Cookies.set("cart", this.state.cart.items)
+      );
+    }
+  };
+
   render() {
     const { Component, pageProps } = this.props;
     return (
       <AppContext.Provider
-        value={{ user: this.state.user, setUser: this.setUser }}
+        value={{
+          user: this.state.user,
+          cart: this.state.cart,
+          setUser: this.setUser,
+          addItem: this.addItem,
+        }}
       >
         <>
           <Head>
